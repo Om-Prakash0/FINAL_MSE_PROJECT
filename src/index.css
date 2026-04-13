@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* 🌙 Dark Mode support (Tailwind v4) */
+@custom-variant dark (&:is(.dark *));
+
+/* Full screen layout */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ✅ Button clicked state */
+.btn-clicked {
+  @apply bg-white text-black; /* Tailwind way */
+}
