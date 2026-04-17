@@ -6,7 +6,9 @@ import eventsData from "../data/events.json";
 export default function MyRegistrationPage({
   user,
   registeredEvents = [],
+  registrations = {},
   setRegisteredEvents,
+  setRegistrations,
 }) {
   const safeRegisteredEvents = registeredEvents || [];
   const myEvents = eventsData.filter((event) =>
@@ -15,6 +17,9 @@ export default function MyRegistrationPage({
 
   const handleCancel = (eventId) => {
     setRegisteredEvents(safeRegisteredEvents.filter((id) => id !== eventId));
+    const nextRegistrations = { ...registrations };
+    delete nextRegistrations[eventId];
+    setRegistrations(nextRegistrations);
     toast.success("Ticket Cancelled.");
   };
 
@@ -42,7 +47,12 @@ export default function MyRegistrationPage({
       ) : (
         <div className="space-y-6">
           {myEvents.map((event) => {
-            const qrData = `Ticket | ${studentName} | ${event.title}`;
+            const registration = registrations[event.id] || {};
+            const ticketName = registration.name || studentName;
+            const ticketRoll = registration.roll || studentRoll;
+            const ticketEmail = registration.email || user?.email || "-";
+            const ticketPhone = registration.phone || "-";
+            const qrData = `Ticket | ${ticketName} | ${ticketRoll} | ${event.title} | ${ticketEmail} | ${ticketPhone}`;
             const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
 
             return (
@@ -58,8 +68,10 @@ export default function MyRegistrationPage({
                     {new Date(event.date).toDateString()} @ {event.time}
                   </p>
                   <p className="text-slate-500 mt-1">
-                    Student: {studentName} ({studentRoll})
+                    Student: {ticketName} ({ticketRoll})
                   </p>
+                  <p className="text-slate-500 mt-1">Email: {ticketEmail}</p>
+                  <p className="text-slate-500 mt-1">Phone: {ticketPhone}</p>
                   <button
                     onClick={() => handleCancel(event.id)}
                     className="mt-4 text-red-500 font-bold hover:text-red-700"

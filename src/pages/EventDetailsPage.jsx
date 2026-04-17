@@ -1,12 +1,28 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import eventsData from "../data/events.json";
 import Countdown from "../components/Countdown";
 
-
-export default function EventDetailsPage({ registeredEvents, setRegisteredEvents }) {
+export default function EventDetailsPage({
+  user,
+  registeredEvents,
+  setRegisteredEvents,
+  eventRegistrations = {},
+  setEventRegistrations,
+}) {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: user?.name || "",
+    roll: user?.roll || "",
+    email: user?.email || "",
+    phone: "",
+    branch: user?.branch || "",
+    year: user?.year || "",
+  });
 
   const event = eventsData.find((e) => e.id === id);
 
@@ -14,17 +30,43 @@ export default function EventDetailsPage({ registeredEvents, setRegisteredEvents
     return <div className="text-center mt-20 font-bold">Event not found!</div>;
 
   const isRegistered = registeredEvents.includes(id);
+  const registrationDetails = eventRegistrations[id];
 
-  const handleRegisterToggle = () => {
-    if (isRegistered) {
-      setRegisteredEvents(
-        registeredEvents.filter((eventId) => eventId !== id)
-      );
-      toast.success("Registration cancelled.");
-    } else {
-      setRegisteredEvents([...registeredEvents, id]);
-      toast.success("Successfully registered!");
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.roll || !formData.email || !formData.phone) {
+      toast.error("Please complete all required fields before submitting.");
+      return;
     }
+
+    if (!isRegistered) {
+      setRegisteredEvents([...registeredEvents, id]);
+    }
+
+    setEventRegistrations({
+      ...eventRegistrations,
+      [id]: {
+        ...formData,
+      },
+    });
+
+    toast.success("Registration complete! Your ticket is ready in My Tickets.");
+    setShowForm(false);
+  };
+
+  const handleCancel = () => {
+    setRegisteredEvents(registeredEvents.filter((eventId) => eventId !== id));
+
+    const nextRegistrations = { ...eventRegistrations };
+    delete nextRegistrations[id];
+    setEventRegistrations(nextRegistrations);
+
+    toast.success("Registration cancelled.");
   };
 
   return (
@@ -63,8 +105,102 @@ export default function EventDetailsPage({ registeredEvents, setRegisteredEvents
             <Countdown date={event.date} time={event.time} />
           </div>
 
+          {isRegistered && registrationDetails ? (
+            <div className="mb-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-200">
+              <p className="font-bold">You are already registered for this event.</p>
+              <p className="mt-2 text-sm">
+                Ticket will appear in <span className="font-semibold">My Tickets</span>.
+              </p>
+              <p className="mt-3 text-sm">
+                Registered as: {registrationDetails.name} ({registrationDetails.roll})
+              </p>
+            </div>
+          ) : null}
+
+          {showForm && !isRegistered && (
+            <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Name</span>
+                  <input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-indigo-500 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Roll Number</span>
+                  <input
+                    name="roll"
+                    value={formData.roll}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-indigo-500 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Email</span>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-indigo-500 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Phone</span>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-indigo-500 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Branch</span>
+                  <input
+                    name="branch"
+                    value={formData.branch}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-indigo-500 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Year</span>
+                  <input
+                    name="year"
+                    value={formData.year}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-indigo-500 focus:ring-indigo-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </label>
+              </div>
+
+              <div className="flex flex-col gap-3 md:flex-row">
+                <button
+                  type="submit"
+                  className="w-full md:w-auto bg-indigo-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-indigo-700 transition"
+                >
+                  Submit Registration
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="w-full md:w-auto border border-slate-300 text-slate-700 px-6 py-4 rounded-xl font-bold hover:bg-slate-100 transition dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
           <button
-            onClick={handleRegisterToggle}
+            onClick={isRegistered ? handleCancel : () => setShowForm(true)}
             className={`w-full p-4 rounded-xl font-bold text-white transition-colors ${
               isRegistered
                 ? "bg-red-500 hover:bg-red-600"

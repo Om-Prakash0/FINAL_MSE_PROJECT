@@ -85,21 +85,42 @@ export default function LoginPage({ setUser }) {
           >
             Test Accounts {showAccounts ? "▲" : "▼"}
           </p>
-          {showAccounts && (
-            MOCK_USERS.map((user, index) => (
-              <div
-                key={index}
-                onClick={() => {
-                  setRoll(user.roll);
-                  setPassword(user.password);
-                  toast.success("Credentials filled!");
-                }}
-                className="cursor-pointer text-center py-1 rounded-lg hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 transition"
-              >
-                Roll: {user.roll} | Pass: {user.password}
+          <div
+            className={`overflow-hidden transition-all duration-500 ${showAccounts ? "max-h-40 opacity-100 mt-2" : "max-h-0 opacity-0"
+              }`}
+          >
+            <div
+              className={`transition-all duration-500 ease-in-out overflow-hidden ${showAccounts
+                ? "max-h-[500px] opacity-100 scale-100"
+                : "max-h-0 opacity-0 scale-95"
+                }`}
+            >
+              <div className="flex flex-col gap-1 mt-2">
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-out ${showAccounts
+                      ? "max-h-40 opacity-100 translate-y-0"
+                      : "max-h-0 opacity-0 -translate-y-2"
+                    }`}
+                >
+                  <div className="flex flex-col gap-1 mt-2">
+                    {MOCK_USERS.map((user, index) => (
+                      <div
+                        key={index}
+                        onClick={() => {
+                          setRoll(user.roll);
+                          setPassword(user.password);
+                          toast.success("Credentials filled!");
+                        }}
+                        className="cursor-pointer text-center py-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 transition-all duration-200"
+                      >
+                        Roll: {user.roll} | Pass: {user.password}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            ))
-          )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

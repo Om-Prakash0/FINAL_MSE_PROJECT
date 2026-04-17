@@ -17,11 +17,11 @@ export default function Navbar({ user, setUser }) {
   };
 
   const linkStyle = (path) =>
-    `relative px-2 py-1 transition-all duration-300 ${
+    `relative px-3 py-1 rounded-lg transition-all duration-300 ${
       location.pathname === path
         ? "text-indigo-600 dark:text-indigo-400"
-        : "text-slate-600 dark:text-slate-400 hover:text-indigo-500"
-    }`;
+        : "text-slate-600 dark:text-slate-400"
+    } hover:text-white hover:bg-gradient-to-r hover:from-indigo-500 hover:to-pink-500 hover:shadow-lg hover:shadow-indigo-500/30`;
 
   return (
     <>
@@ -42,27 +42,53 @@ export default function Navbar({ user, setUser }) {
       <nav className="sticky top-0 z-50 w-full backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 border-b border-slate-200 dark:border-slate-700">
         <div className="w-full flex items-center justify-evenly text-sm font-semibold h-14">
 
-          <Link to="/" className={linkStyle("/")}>Discover</Link>
+          {/* Discover */}
+          <Link to="/" className={linkStyle("/")}>
+            <span className="relative group">
+              Discover
+              <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+            </span>
+          </Link>
 
+          {/* My Tickets */}
           <Link to="/my-registrations" className={linkStyle("/my-registrations")}>
-            My Tickets
+            <span className="relative group">
+              My Tickets
+              <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+            </span>
           </Link>
 
-          <Link to="/help" className={linkStyle("/help")}>Help</Link>
+          {/* Help */}
+          <Link to="/help" className={linkStyle("/help")}>
+            <span className="relative group">
+              Help
+              <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+            </span>
+          </Link>
 
+          {/* Find Friend */}
           <Link to="/find-friend" className={linkStyle("/find-friend")}>
-            Find Friend
+            <span className="relative group">
+              Find Friend
+              <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+            </span>
           </Link>
 
-          <button onClick={toggleTheme} className="text-lg">
+          {/* Theme Toggle */}
+          <button onClick={toggleTheme} className="text-lg hover:scale-110 transition">
             {isDark ? "☀️" : "🌙"}
           </button>
 
+          {/* Profile */}
           <Link to="/profile" className={linkStyle("/profile")}>
-            Hi, {firstName}
+            <span className="relative group">
+              Hi, {firstName}
+              <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-gradient-to-r from-indigo-400 to-pink-400 transition-all duration-300 group-hover:w-full"></span>
+            </span>
           </Link>
 
-          <button onClick={handleLogout} className="text-red-500 hover:text-red-600">
+          {/* Logout */}
+          <button className="text-red-500 hover:text-red-600 hover:scale-110 transition">
             Logout
           </button>
 

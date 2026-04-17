@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -21,7 +21,7 @@ import FloatingHelpButton from "./components/FloatingHelpButton";
 
 import { motion, AnimatePresence } from "framer-motion";
 
-// Animation Wrapper
+// ✅ Animation Wrapper
 const PageWrapper = ({ children }) => {
   return (
     <motion.div
@@ -35,60 +35,111 @@ const PageWrapper = ({ children }) => {
   );
 };
 
-// ✅ Move routing logic inside this component
-function AppContent({ user, setUser, registeredEvents, setRegisteredEvents }) {
+// ✅ Main Content
+function AppContent({
+  user,
+  setUser,
+  registeredEvents,
+  setRegisteredEvents,
+  eventRegistrations,
+  setEventRegistrations,
+}) {
   const location = useLocation();
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-all duration-500">
 
+      {/* Navbar */}
       {user && <Navbar user={user} setUser={setUser} />}
 
+      {/* Main Content */}
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8">
+        
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
 
+            {/* Login */}
             <Route
               path="/login"
               element={
                 !user ? (
-                  <PageWrapper><LoginPage setUser={setUser} /></PageWrapper>
-                ) : <Navigate to="/" />
+                  <PageWrapper>
+                    <LoginPage setUser={setUser} />
+                  </PageWrapper>
+                ) : (
+                  <Navigate to="/" />
+                )
               }
             />
 
-            <Route path="/help" element={<PageWrapper><HelpPage /></PageWrapper>} />
-            <Route path="/find-friend" element={<PageWrapper><FindFriendPage /></PageWrapper>} />
+            {/* Public */}
+            <Route
+              path="/help"
+              element={
+                <PageWrapper>
+                  <HelpPage />
+                </PageWrapper>
+              }
+            />
+
+            <Route
+              path="/find-friend"
+              element={
+                <PageWrapper>
+                  <FindFriendPage />
+                </PageWrapper>
+              }
+            />
+
+            {/* Profile */}
             <Route
               path="/profile"
               element={
-                user ? <ProfilePage user={user} setUser={setUser} /> : <Navigate to="/login" />
+                user ? (
+                  <PageWrapper>
+                    <ProfilePage user={user} setUser={setUser} />
+                  </PageWrapper>
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
 
+            {/* Home */}
             <Route
               path="/"
               element={
                 user ? (
-                  <PageWrapper><EventPage /></PageWrapper>
-                ) : <Navigate to="/login" />
+                  <PageWrapper>
+                    <EventPage />
+                  </PageWrapper>
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
 
+            {/* Event Details */}
             <Route
               path="/events/:id"
               element={
                 user ? (
                   <PageWrapper>
                     <EventDetailsPage
+                      user={user}
                       registeredEvents={registeredEvents}
                       setRegisteredEvents={setRegisteredEvents}
+                      eventRegistrations={eventRegistrations}
+                      setEventRegistrations={setEventRegistrations}
                     />
                   </PageWrapper>
-                ) : <Navigate to="/login" />
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
 
+            {/* My Registrations */}
             <Route
               path="/my-registrations"
               element={
@@ -97,44 +148,65 @@ function AppContent({ user, setUser, registeredEvents, setRegisteredEvents }) {
                     <MyRegistrationPage
                       user={user}
                       registeredEvents={registeredEvents}
+                      registrations={eventRegistrations}
                       setRegisteredEvents={setRegisteredEvents}
+                      setRegistrations={setEventRegistrations}
                     />
                   </PageWrapper>
-                ) : <Navigate to="/login" />
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
 
-            <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
+            {/* Fallback */}
+            <Route
+              path="*"
+              element={<Navigate to={user ? "/" : "/login"} replace />}
+            />
           </Routes>
-
-          <>
-            {/* your routes / pages */}
-
-            <FloatingHelpButton />
-          </>
-
         </AnimatePresence>
+
+        {/* ✅ Floating Button OUTSIDE animation */}
+        <FloatingHelpButton />
+
       </main>
 
+      {/* Footer */}
       <Footer />
     </div>
   );
 }
 
+// ✅ Root App
 export default function App() {
   const [user, setUser] = useState(null);
-  const [registeredEvents, setRegisteredEvents] = useState([]);
+
+  const [registeredEvents, setRegisteredEvents] = useState(() => {
+    return JSON.parse(localStorage.getItem("registeredEvents")) || [];
+  });
+
+  const [eventRegistrations, setEventRegistrations] = useState(() => {
+    return JSON.parse(localStorage.getItem("eventRegistrations")) || {};
+  });
+
+  // Save to localStorage
+  useEffect(() => {
+    localStorage.setItem("registeredEvents", JSON.stringify(registeredEvents));
+    localStorage.setItem("eventRegistrations", JSON.stringify(eventRegistrations));
+  }, [registeredEvents, eventRegistrations]);
 
   return (
     <BrowserRouter>
       <Toaster position="top-center" />
 
-      {/* ✅ Use AppContent here */}
       <AppContent
         user={user}
         setUser={setUser}
         registeredEvents={registeredEvents}
         setRegisteredEvents={setRegisteredEvents}
+        eventRegistrations={eventRegistrations}
+        setEventRegistrations={setEventRegistrations}
       />
     </BrowserRouter>
   );
