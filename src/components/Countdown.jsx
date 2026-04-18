@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 
-export default function Countdown({ date, time }) {
+export default function Countdown({ date, time, onEnded }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isEnded, setIsEnded] = useState(false);
 
   useEffect(() => {
      
@@ -13,6 +14,8 @@ export default function Countdown({ date, time }) {
 
       if (distance < 0) {
         clearInterval(interval);
+        setIsEnded(true);
+        if (onEnded) onEnded();
         return;
       }
 
@@ -25,7 +28,17 @@ export default function Countdown({ date, time }) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [date, time]);
+  }, [date, time, onEnded]);
+
+  if (isEnded) {
+    return (
+      <div className="flex items-center justify-center md:justify-start">
+        <div className="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg font-bold text-center">
+          Event Ended
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex gap-4 justify-center md:justify-start">

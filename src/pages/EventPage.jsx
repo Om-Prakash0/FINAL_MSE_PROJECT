@@ -1,24 +1,39 @@
 import { useState } from "react";
-import eventsData from "../data/events.json";
 import EventCard from "../components/EventCard";
 import FiltersBar from "../components/FiltersBar";
 
-export default function EventPage() {
+export default function EventPage({ events }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", ...new Set(eventsData.map((event) => event.category))];
+  const categories = ["All", ...new Set(events.map((event) => event.category))];
 
-  const filteredEvents = eventsData.filter((event) => {
-    const matchesSearch =
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.venue.toLowerCase().includes(searchQuery.toLowerCase());
+  // Check if event has ended
+  const hasEventEnded = (date, time) => {
+    const targetDate = new Date(`${date} ${time}`).getTime();
+    const now = new Date().getTime();
+    return now > targetDate;
+  };
 
-    const matchesCategory =
-      selectedCategory === "All" || event.category === selectedCategory;
+  const filteredEvents = events
+    .filter((event) => {
+      const matchesSearch =
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.venue.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch && matchesCategory;
-  });
+      const matchesCategory =
+        selectedCategory === "All" || event.category === selectedCategory;
+
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      // Active events first, ended events last
+      const aEnded = hasEventEnded(a.date, a.time);
+      const bEnded = hasEventEnded(b.date, b.time);
+      
+      if (aEnded === bEnded) return 0;
+      return aEnded ? 1 : -1;
+    });
 
   return (
     <div className="animate-in fade-in duration-500">
